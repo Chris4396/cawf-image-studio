@@ -104,19 +104,28 @@ async function shareSingleImage(item) {
 }
 
 async function shareFiles(files, title) {
-  const shareData = { files, title };
-
-  if (!canShareFiles(shareData)) {
+  if (!canUseShareApi()) {
     setStatus('The iOS save sheet is not available here. Press and hold a preview image, then choose Save to Photos.');
     return;
   }
 
   shareAllButton.disabled = true;
+  setStatus('Preparing fresh image copy dated now...');
+
+  const preparedFiles = await createFreshImageCopies(files);
+  const shareData = { files: preparedFiles, title };
+
+  if (!canShareFiles(shareData)) {
+    shareAllButton.disabled = imageItems.length === 0;
+    setStatus('The iOS save sheet is not available here. Press and hold a preview image, then choose Save to Photos.');
+    return;
+  }
+
   setStatus('Opening iPhone Photos save options...');
 
   try {
     await navigator.share(shareData);
-    setStatus('Choose Save Image or Save to Photos in the iPhone sheet.');
+    setStatus('Fresh copy sent to the iPhone sheet. If you chose Save Photo, check Recently Added.');
   } catch (error) {
     if (error.name === 'AbortError') {
       setStatus('Save cancelled.');
@@ -130,8 +139,109 @@ async function shareFiles(files, title) {
   }
 }
 
+async function createFreshImageCopies(files) {
+  const timestamp = new Date();
+  const freshFiles = [];
+
+  for (const [index, file] of files.entries()) {
+    try {
+      freshFiles.push(await createFreshImageCopy(file, timestamp, index));
+    } catch (error) {
+      console.warn('Could not make a fresh dated copy; using original file.', error);
+      freshFiles.push(file);
+    }
+  }
+
+  return freshFiles;
+}
+
+async function createFreshImageCopy(file, timestamp, index) {
+  const image = await loadImage(file);
+  const canvas = document.createElement('canvas');
+  const width = image.naturalWidth || image.width;
+  const height = image.naturalHeight || image.height;
+
+  if (!width || !height) {
+    throw new Error('Image dimensions were not available.');
+  }
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+
+  const blob = await canvasToBlob(canvas, 'image/jpeg', 0.95);
+  return new File([blob], getFreshFileName(file, timestamp, index), {
+    lastModified: timestamp.getTime(),
+    type: 'image/jpeg',
+  });
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const url = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Image could not be loaded for a fresh dated copy.'));
+    };
+    image.src = url;
+  });
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+
+      reject(new Error('Image copy export failed.'));
+    }, type, quality);
+  });
+}
+
+function getFreshFileName(file, timestamp, index) {
+  const baseName = String(file.name || 'sharepoint-image')
+    .replace(/\.[^.]+$/, '')
+    .replace(/[^a-z0-9_-]+/gi, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 52) || 'sharepoint-image';
+  const indexSuffix = index > 0 ? `-${index + 1}` : '';
+
+  return `${baseName}-grabbed-${formatTimestampForFileName(timestamp)}${indexSuffix}.jpg`;
+}
+
+function formatTimestampForFileName(date) {
+  const parts = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+    '-',
+    String(date.getHours()).padStart(2, '0'),
+    String(date.getMinutes()).padStart(2, '0'),
+    String(date.getSeconds()).padStart(2, '0'),
+  ];
+
+  return parts.join('');
+}
+
+function canUseShareApi() {
+  return 'share' in navigator && 'File' in window;
+}
+
 function canShareFiles(shareData) {
-  if (!('share' in navigator) || !('File' in window)) return false;
+  if (!canUseShareApi()) return false;
 
   if (!navigator.canShare) return true;
 
