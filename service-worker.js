@@ -1,13 +1,13 @@
-const CACHE_NAME = 'cawf-image-studio-v15';
+const CACHE_NAME = 'cawf-image-studio-v16';
 const APP_SHELL = [
   './',
   './index.html',
-  './src/main.jsx?v=github-pages-1',
-  './src/styles.css?v=github-pages-1',
+  './src/main.js?v=github-pages-2',
+  './src/styles.css?v=github-pages-2',
   './assets/cawf-logo.png',
   './icons/app-icon-192.png',
   './icons/app-icon-512.png',
-  './manifest.webmanifest?v=github-pages-1',
+  './manifest.webmanifest?v=github-pages-2',
 ];
 
 self.addEventListener('install', (event) => {
