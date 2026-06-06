@@ -1,6 +1,6 @@
 {
-  "name": "CAWF SharePoint Image Grab",
-  "short_name": "Image Grab",
+  "name": "CAWF Image Grab",
+  "short_name": "CAWF Image Grab",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
