@@ -62,9 +62,13 @@ button:focus-visible,
 
 .app-shell {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 18px;
+  height: 100vh;
+  height: 100svh;
   min-height: 100vh;
   min-height: 100svh;
+  overflow: hidden;
   padding:
     max(18px, env(safe-area-inset-top))
     max(18px, env(safe-area-inset-right))
@@ -152,7 +156,11 @@ button:focus-visible,
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 0;
+  overflow: auto;
   padding: 18px;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
 .control-section {
@@ -382,6 +390,7 @@ button:focus-visible,
   color: rgba(255, 255, 255, 0.86);
 }
 
+.advanced-controls,
 .manual-crop-controls,
 .text-position-controls {
   display: grid;
@@ -392,8 +401,28 @@ button:focus-visible,
   background: #f7fbfc;
 }
 
+.advanced-controls[hidden],
 .manual-crop-controls[hidden] {
   display: none;
+}
+
+.advanced-controls {
+  border-color: #bfe3ea;
+  background: #f2fbfb;
+}
+
+.advanced-mode-toggle-row {
+  border-color: rgba(0, 127, 137, 0.42);
+  background: #eefafa;
+}
+
+.advanced-mode-toggle-row:has(input:checked) {
+  border-color: var(--teal);
+  background: #e2f8f8;
+}
+
+.advanced-color-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .range-control {
@@ -604,9 +633,10 @@ button:focus-visible,
 .preview-frame {
   position: relative;
   display: grid;
+  height: 100%;
   place-items: center;
-  min-height: 520px;
-  max-height: calc(100vh - 150px);
+  min-height: 0;
+  max-height: none;
   overflow: auto;
   padding: 18px;
   -webkit-overflow-scrolling: touch;
@@ -656,6 +686,14 @@ canvas {
 
 canvas[width="0"] {
   box-shadow: none;
+}
+
+.preview-frame.crop-drag-ready canvas {
+  cursor: grab;
+}
+
+.preview-frame.crop-dragging canvas {
+  cursor: grabbing;
 }
 
 .empty-state {
@@ -786,8 +824,19 @@ canvas[width="0"] {
 }
 
 @media (max-width: 980px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .controls-panel {
+    overflow: visible;
   }
 
   .preview-panel {
@@ -795,6 +844,8 @@ canvas[width="0"] {
   }
 
   .preview-frame {
+    height: auto;
+    min-height: 520px;
     max-height: none;
   }
 }

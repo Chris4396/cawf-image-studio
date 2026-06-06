@@ -74,7 +74,50 @@ const textPositions = [
   { value: 'bottom-center', label: 'Bottom centre' },
 ];
 
+const advancedPanelColors = [
+  { value: '#003f73', label: 'CAWF blue', swatch: '#003f73' },
+  { value: '#007f89', label: 'Teal', swatch: '#007f89' },
+  { value: '#111827', label: 'Black', swatch: '#111827' },
+  { value: '#ffffff', label: 'White', swatch: '#ffffff' },
+  { value: '#1687d9', label: 'Bright blue', swatch: '#1687d9' },
+  { value: '#0f766e', label: 'Green', swatch: '#0f766e' },
+  { value: '#b91c1c', label: 'Red', swatch: '#b91c1c' },
+  { value: '#b9e7f8', label: 'Light blue', swatch: '#b9e7f8' },
+];
+
+const advancedBarColors = [
+  { value: '#ffffff', label: 'White', swatch: '#ffffff' },
+  { value: '#003f73', label: 'CAWF blue', swatch: '#003f73' },
+  { value: '#b9e7f8', label: 'Light blue', swatch: '#b9e7f8' },
+  { value: '#111827', label: 'Black', swatch: '#111827' },
+];
+
+const advancedHighlightColors = [
+  { value: '#12aeea', label: 'Sky blue', swatch: '#12aeea' },
+  { value: '#ff3131', label: 'Red', swatch: '#ff3131' },
+  { value: '#76dd55', label: 'Green', swatch: '#76dd55' },
+  { value: '#ffffff', label: 'White', swatch: '#ffffff' },
+  { value: '#003f73', label: 'CAWF blue', swatch: '#003f73' },
+  { value: '#facc15', label: 'Yellow', swatch: '#facc15' },
+];
+
+const advancedImageSides = [
+  { value: 'left', label: 'Photo left' },
+  { value: 'right', label: 'Photo right' },
+];
+
 const state = {
+  advancedBarColor: '#ffffff',
+  advancedBarEnabled: true,
+  advancedBarHeight: 0.16,
+  advancedHighlightColor: '#12aeea',
+  advancedImageSide: 'left',
+  advancedImageWidth: 0.46,
+  advancedMode: false,
+  advancedPanelColor: '#003f73',
+  advancedPanelOpacity: 1,
+  advancedPhotoX: 0,
+  advancedPhotoY: 0,
   image: null,
   imageFit: 'crop',
   logo: null,
@@ -167,6 +210,59 @@ document.getElementById('root').innerHTML = `
               <input class="manual-y" type="range" min="-100" max="100" step="1" value="0" />
             </label>
             <button class="secondary-action manual-crop-reset" type="button">Reset crop</button>
+          </div>
+          <label class="fit-toggle advanced-mode-toggle-row">
+            <input class="advanced-mode-toggle" type="checkbox" />
+            <span>
+              <strong>Advanced campaign layout</strong>
+              <small>Split photo, text panel and logo bar</small>
+            </span>
+          </label>
+          <div class="advanced-controls" hidden>
+            <fieldset class="control-group">
+              <legend>Photo side</legend>
+              <div class="segmented-grid" data-control="advancedImageSide"></div>
+            </fieldset>
+            <fieldset class="control-group">
+              <legend>Text panel colour</legend>
+              <div class="color-grid advanced-color-grid" data-control="advancedPanelColor"></div>
+            </fieldset>
+            <label class="range-control">
+              <span>Panel opacity <output class="advanced-panel-opacity-value">100%</output></span>
+              <input class="advanced-panel-opacity" type="range" min="45" max="100" step="5" value="100" />
+            </label>
+            <label class="range-control">
+              <span>Photo width <output class="advanced-image-width-value">46%</output></span>
+              <input class="advanced-image-width" type="range" min="35" max="62" step="1" value="46" />
+            </label>
+            <label class="range-control">
+              <span>Photo horizontal <output class="advanced-photo-x-value">0%</output></span>
+              <input class="advanced-photo-x" type="range" min="-100" max="100" step="1" value="0" />
+            </label>
+            <label class="range-control">
+              <span>Photo vertical <output class="advanced-photo-y-value">0%</output></span>
+              <input class="advanced-photo-y" type="range" min="-100" max="100" step="1" value="0" />
+            </label>
+            <button class="secondary-action advanced-photo-reset" type="button">Reset photo position</button>
+            <fieldset class="control-group">
+              <legend>Emphasis highlight colour</legend>
+              <div class="color-grid advanced-color-grid" data-control="advancedHighlightColor"></div>
+            </fieldset>
+            <label class="fit-toggle">
+              <input class="advanced-bar-toggle" type="checkbox" checked />
+              <span>
+                <strong>Bottom logo bar</strong>
+                <small>Centre the CAWF logo in a footer strip</small>
+              </span>
+            </label>
+            <fieldset class="control-group advanced-bar-options">
+              <legend>Logo bar colour</legend>
+              <div class="color-grid advanced-color-grid" data-control="advancedBarColor"></div>
+            </fieldset>
+            <label class="range-control advanced-bar-options">
+              <span>Logo bar height <output class="advanced-bar-height-value">16%</output></span>
+              <input class="advanced-bar-height" type="range" min="10" max="24" step="1" value="16" />
+            </label>
           </div>
           <p class="output-summary">Website export: 1000 x 730 px.</p>
         </section>
@@ -330,6 +426,21 @@ const mobileSaveCloseButton = document.querySelector('.save-close');
 const mobileSaveShareButton = document.querySelector('.mobile-share-action');
 const mobileSaveDownloadLink = document.querySelector('.mobile-download-link');
 const mobileSaveNote = document.querySelector('.mobile-save-note');
+const advancedModeToggle = document.querySelector('.advanced-mode-toggle');
+const advancedControls = document.querySelector('.advanced-controls');
+const advancedPanelOpacityInput = document.querySelector('.advanced-panel-opacity');
+const advancedPanelOpacityValue = document.querySelector('.advanced-panel-opacity-value');
+const advancedImageWidthInput = document.querySelector('.advanced-image-width');
+const advancedImageWidthValue = document.querySelector('.advanced-image-width-value');
+const advancedPhotoXInput = document.querySelector('.advanced-photo-x');
+const advancedPhotoXValue = document.querySelector('.advanced-photo-x-value');
+const advancedPhotoYInput = document.querySelector('.advanced-photo-y');
+const advancedPhotoYValue = document.querySelector('.advanced-photo-y-value');
+const advancedPhotoResetButton = document.querySelector('.advanced-photo-reset');
+const advancedBarToggle = document.querySelector('.advanced-bar-toggle');
+const advancedBarHeightInput = document.querySelector('.advanced-bar-height');
+const advancedBarHeightValue = document.querySelector('.advanced-bar-height-value');
+const advancedBarOptions = document.querySelectorAll('.advanced-bar-options');
 const manualCropControls = document.querySelector('.manual-crop-controls');
 const manualCropResetButton = document.querySelector('.manual-crop-reset');
 const manualZoomInput = document.querySelector('.manual-zoom');
@@ -360,6 +471,7 @@ const qualityNote = document.querySelector('.quality-note');
 const headerStatus = document.querySelector('.header-status');
 const mobilePreviewToggleButton = document.querySelector('.mobile-preview-toggle');
 const isMobileRuntime = isLikelyMobileBrowser();
+let cropDragState = null;
 
 if (window.cawfDesktop?.runtime === 'electron') {
   headerStatus.textContent = 'Desktop app';
@@ -395,6 +507,11 @@ renderOptionButtons('textColor', textColors, state.textColor);
 renderOptionButtons('textSize', textSizes, state.textSize);
 renderOptionButtons('textPosition', textPositions, state.textPosition);
 renderOptionButtons('textWidth', textWidths, state.textWidth);
+renderOptionButtons('advancedImageSide', advancedImageSides, state.advancedImageSide);
+renderOptionButtons('advancedPanelColor', advancedPanelColors, state.advancedPanelColor);
+renderOptionButtons('advancedBarColor', advancedBarColors, state.advancedBarColor);
+renderOptionButtons('advancedHighlightColor', advancedHighlightColors, state.advancedHighlightColor);
+updateAdvancedControls();
 updateManualCropControls();
 updateTextPositionControls();
 updateMobilePreviewMode();
@@ -407,6 +524,15 @@ uploadDropZone.addEventListener('click', () => uploadInput.click());
 resetButton.addEventListener('click', resetImage);
 downloadButton.addEventListener('click', downloadImage);
 openDownloadsButton.addEventListener('click', showSavedFile);
+advancedModeToggle.addEventListener('change', handleAdvancedModeToggle);
+advancedBarToggle.addEventListener('change', handleAdvancedBarToggle);
+advancedPanelOpacityInput.addEventListener('input', handleAdvancedRangeChange);
+advancedImageWidthInput.addEventListener('input', handleAdvancedRangeChange);
+advancedBarHeightInput.addEventListener('input', handleAdvancedRangeChange);
+advancedPhotoResetButton.addEventListener('click', resetAdvancedPhotoPosition);
+[advancedPhotoXInput, advancedPhotoYInput].forEach((input) => {
+  input.addEventListener('input', handleAdvancedPhotoPositionChange);
+});
 manualCropResetButton.addEventListener('click', resetManualCrop);
 [manualZoomInput, manualXInput, manualYInput].forEach((input) => {
   input.addEventListener('input', handleManualCropChange);
@@ -419,6 +545,10 @@ textPositionResetButton.addEventListener('click', resetTextPosition);
   input.addEventListener('input', handleTextPositionChange);
 });
 mobilePreviewToggleButton.addEventListener('click', toggleMobilePreviewSize);
+canvas.addEventListener('pointerdown', startCropDrag);
+canvas.addEventListener('pointermove', handleCropDrag);
+canvas.addEventListener('pointerup', endCropDrag);
+canvas.addEventListener('pointercancel', endCropDrag);
 mobileSaveCloseButton.addEventListener('click', hideMobileSavePreview);
 mobileSavePanel.addEventListener('click', (event) => {
   if (event.target === mobileSavePanel) hideMobileSavePreview();
@@ -472,10 +602,70 @@ function renderOptionButtons(controlName, options, selectedValue) {
         updateOutputSummary();
       }
       if (controlName.startsWith('text')) updateTextSummary();
+      if (controlName.startsWith('advanced')) {
+        updateAdvancedControls();
+        updateOutputSummary();
+      }
       drawCanvas();
     });
     container.appendChild(button);
   });
+}
+
+function handleAdvancedModeToggle() {
+  state.advancedMode = advancedModeToggle.checked;
+  updateAdvancedControls();
+  updateOutputSummary();
+  drawCanvas();
+}
+
+function handleAdvancedBarToggle() {
+  state.advancedBarEnabled = advancedBarToggle.checked;
+  updateAdvancedControls();
+  updateOutputSummary();
+  drawCanvas();
+}
+
+function handleAdvancedRangeChange() {
+  state.advancedPanelOpacity = Number(advancedPanelOpacityInput.value) / 100;
+  state.advancedImageWidth = Number(advancedImageWidthInput.value) / 100;
+  state.advancedBarHeight = Number(advancedBarHeightInput.value) / 100;
+  updateAdvancedControls();
+  drawCanvas();
+}
+
+function handleAdvancedPhotoPositionChange() {
+  state.advancedPhotoX = Number(advancedPhotoXInput.value);
+  state.advancedPhotoY = Number(advancedPhotoYInput.value);
+  updateAdvancedControls();
+  drawCanvas();
+}
+
+function resetAdvancedPhotoPosition() {
+  state.advancedPhotoX = 0;
+  state.advancedPhotoY = 0;
+  updateAdvancedControls();
+  drawCanvas();
+}
+
+function updateAdvancedControls() {
+  advancedModeToggle.checked = state.advancedMode;
+  advancedControls.hidden = !state.advancedMode;
+  advancedPanelOpacityInput.value = String(Math.round(state.advancedPanelOpacity * 100));
+  advancedImageWidthInput.value = String(Math.round(state.advancedImageWidth * 100));
+  advancedPhotoXInput.value = String(state.advancedPhotoX);
+  advancedPhotoYInput.value = String(state.advancedPhotoY);
+  advancedBarToggle.checked = state.advancedBarEnabled;
+  advancedBarHeightInput.value = String(Math.round(state.advancedBarHeight * 100));
+  advancedPanelOpacityValue.textContent = `${Math.round(state.advancedPanelOpacity * 100)}%`;
+  advancedImageWidthValue.textContent = `${Math.round(state.advancedImageWidth * 100)}%`;
+  advancedPhotoXValue.textContent = `${state.advancedPhotoX}%`;
+  advancedPhotoYValue.textContent = `${state.advancedPhotoY}%`;
+  advancedBarHeightValue.textContent = `${Math.round(state.advancedBarHeight * 100)}%`;
+  advancedBarOptions.forEach((item) => {
+    item.hidden = !state.advancedBarEnabled;
+  });
+  updatePhotoDragCursor();
 }
 
 function handleManualCropChange() {
@@ -503,6 +693,136 @@ function updateManualCropControls() {
   manualZoomValue.textContent = `${Math.round(state.manualZoom * 100)}%`;
   manualXValue.textContent = `${state.manualCropX}%`;
   manualYValue.textContent = `${state.manualCropY}%`;
+  updatePhotoDragCursor();
+}
+
+function startCropDrag(event) {
+  const dragMode = getActivePhotoDragMode();
+  if (!dragMode) return;
+
+  const point = getCanvasPoint(event);
+  const imageRect = getActiveImageRect(canvas);
+  if (!isPointInRect(point, imageRect)) return;
+
+  const pan = getActivePhotoPan(dragMode, state.image, imageRect);
+  if (!pan.maxPanX && !pan.maxPanY) return;
+
+  cropDragState = {
+    lastX: point.x,
+    lastY: point.y,
+    mode: dragMode,
+    pointerId: event.pointerId,
+  };
+  canvas.setPointerCapture?.(event.pointerId);
+  previewFrame.classList.add('crop-dragging');
+  event.preventDefault();
+}
+
+function handleCropDrag(event) {
+  if (!cropDragState || event.pointerId !== cropDragState.pointerId) return;
+
+  const point = getCanvasPoint(event);
+  const dx = point.x - cropDragState.lastX;
+  const dy = point.y - cropDragState.lastY;
+  const imageRect = getActiveImageRect(canvas);
+  const pan = getActivePhotoPan(cropDragState.mode, state.image, imageRect);
+
+  updatePhotoPanFromDrag(cropDragState.mode, dx, dy, pan);
+
+  cropDragState.lastX = point.x;
+  cropDragState.lastY = point.y;
+  updateAdvancedControls();
+  updateManualCropControls();
+  drawCanvas();
+  event.preventDefault();
+}
+
+function endCropDrag(event) {
+  if (!cropDragState || event.pointerId !== cropDragState.pointerId) return;
+
+  canvas.releasePointerCapture?.(event.pointerId);
+  cropDragState = null;
+  previewFrame.classList.remove('crop-dragging');
+}
+
+function canDragManualCrop() {
+  return state.imageFit === 'manual' && Boolean(state.image) && canvas.width > 0 && canvas.height > 0;
+}
+
+function canDragAdvancedPhoto() {
+  return (
+    state.advancedMode &&
+    Boolean(state.image) &&
+    (state.imageFit === 'crop' || state.imageFit === 'manual') &&
+    canvas.width > 0 &&
+    canvas.height > 0
+  );
+}
+
+function getActivePhotoDragMode() {
+  if (canDragAdvancedPhoto()) return 'advanced';
+  if (canDragManualCrop()) return 'manual';
+  return '';
+}
+
+function updatePhotoDragCursor() {
+  previewFrame.classList.toggle('crop-drag-ready', Boolean(getActivePhotoDragMode()));
+}
+
+function getCanvasPoint(event) {
+  const bounds = canvas.getBoundingClientRect();
+  return {
+    x: ((event.clientX - bounds.left) / bounds.width) * canvas.width,
+    y: ((event.clientY - bounds.top) / bounds.height) * canvas.height,
+  };
+}
+
+function getActiveImageRect(targetCanvas) {
+  if (state.advancedMode) {
+    return getAdvancedLayoutRects(targetCanvas).imageRect;
+  }
+
+  return getCanvasRect(targetCanvas);
+}
+
+function isPointInRect(point, rect) {
+  return (
+    point.x >= rect.x &&
+    point.x <= rect.x + rect.width &&
+    point.y >= rect.y &&
+    point.y <= rect.y + rect.height
+  );
+}
+
+function getManualCropPan(image, rect) {
+  return getPannedCoverMetrics(image, rect, state.manualZoom);
+}
+
+function getAdvancedPhotoPan(image, rect) {
+  const zoom = state.imageFit === 'manual' ? state.manualZoom : 1;
+  return getPannedCoverMetrics(image, rect, zoom);
+}
+
+function getActivePhotoPan(dragMode, image, rect) {
+  return dragMode === 'advanced' ? getAdvancedPhotoPan(image, rect) : getManualCropPan(image, rect);
+}
+
+function updatePhotoPanFromDrag(dragMode, dx, dy, pan) {
+  const advancedPan = getAdvancedPhotoPanValues();
+  const currentX = dragMode === 'advanced' ? advancedPan.x : state.manualCropX;
+  const currentY = dragMode === 'advanced' ? advancedPan.y : state.manualCropY;
+  const nextX = pan.maxPanX ? Math.round(clamp(currentX + ((dx / pan.maxPanX) * 100), -100, 100)) : currentX;
+  const nextY = pan.maxPanY ? Math.round(clamp(currentY + ((dy / pan.maxPanY) * 100), -100, 100)) : currentY;
+
+  if (dragMode === 'advanced') {
+    const manualX = state.imageFit === 'manual' ? state.manualCropX : 0;
+    const manualY = state.imageFit === 'manual' ? state.manualCropY : 0;
+    state.advancedPhotoX = Math.round(clamp(nextX - manualX, -100, 100));
+    state.advancedPhotoY = Math.round(clamp(nextY - manualY, -100, 100));
+  } else {
+    state.manualCropX = nextX;
+    state.manualCropY = nextY;
+  }
 }
 
 function handleCampaignTextInput() {
@@ -583,8 +903,12 @@ function loadImageFile(file) {
   image.onload = () => {
     URL.revokeObjectURL(imageUrl);
     state.image = image;
+    state.advancedPhotoX = 0;
+    state.advancedPhotoY = 0;
     emptyState.hidden = true;
     downloadButton.disabled = false;
+    updateAdvancedControls();
+    updateManualCropControls();
     drawCanvas();
     fileSummary.textContent = `${file.name} loaded. ${getSelectedOutputPreset().label} export: ${getCanvasSizeText()}.`;
     qualityNote.textContent = `${getSelectedOutputPreset().label}: ${getCanvasSizeText()}`;
@@ -656,6 +980,17 @@ function isFileDrag(event) {
 
 function resetImage() {
   const context = canvas.getContext('2d');
+  state.advancedBarColor = '#ffffff';
+  state.advancedBarEnabled = true;
+  state.advancedBarHeight = 0.16;
+  state.advancedHighlightColor = '#12aeea';
+  state.advancedImageSide = 'left';
+  state.advancedImageWidth = 0.46;
+  state.advancedMode = false;
+  state.advancedPanelColor = '#003f73';
+  state.advancedPanelOpacity = 1;
+  state.advancedPhotoX = 0;
+  state.advancedPhotoY = 0;
   state.image = null;
   state.imageFit = 'crop';
   state.lastSavedPath = '';
@@ -704,6 +1039,11 @@ function resetImage() {
   renderOptionButtons('textSize', textSizes, state.textSize);
   renderOptionButtons('textPosition', textPositions, state.textPosition);
   renderOptionButtons('textWidth', textWidths, state.textWidth);
+  renderOptionButtons('advancedImageSide', advancedImageSides, state.advancedImageSide);
+  renderOptionButtons('advancedPanelColor', advancedPanelColors, state.advancedPanelColor);
+  renderOptionButtons('advancedBarColor', advancedBarColors, state.advancedBarColor);
+  renderOptionButtons('advancedHighlightColor', advancedHighlightColors, state.advancedHighlightColor);
+  updateAdvancedControls();
   updateManualCropControls();
   updateTextPositionControls();
   updateOutputSummary();
@@ -807,25 +1147,235 @@ function drawCanvas() {
   canvas.width = output.width;
   canvas.height = output.height;
   context.clearRect(0, 0, canvas.width, canvas.height);
-  if (state.imageFit === 'stretch') {
-    drawImageStretch(context, state.image, canvas.width, canvas.height);
-  } else if (state.imageFit === 'contain') {
-    drawImageContain(context, state.image, canvas.width, canvas.height);
-  } else if (state.imageFit === 'manual') {
-    drawImageManualCrop(context, state.image, canvas.width, canvas.height);
+  if (state.advancedMode) {
+    drawAdvancedLayout(context, canvas, selectedSize, padding);
   } else {
-    drawImageCover(context, state.image, canvas.width, canvas.height);
+    drawImageInRect(context, state.image, getCanvasRect(canvas), state.imageFit);
+    drawTextOverlay(context, canvas);
+    drawRegularLogo(context, canvas, logoWidth, logoHeight, padding);
   }
 
-  drawTextOverlay(context, canvas);
+  updateOutputSummary();
+}
 
-  const { x, y } = getLogoCoordinates(state.position, canvas, logoWidth, logoHeight, padding);
+function drawAdvancedLayout(context, targetCanvas, selectedLogoSize, padding) {
+  const { barHeight, imageRect, textRect } = getAdvancedLayoutRects(targetCanvas);
+
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+  drawAdvancedImageInRect(context, state.image, imageRect);
+
+  context.save();
+  context.globalAlpha = state.advancedPanelOpacity;
+  context.fillStyle = state.advancedPanelColor;
+  context.fillRect(textRect.x, textRect.y, textRect.width, textRect.height);
+  context.restore();
+
+  drawAdvancedTextOverlay(context, textRect, targetCanvas);
+
+  if (state.advancedBarEnabled) {
+    drawAdvancedLogoBar(context, targetCanvas, selectedLogoSize, barHeight);
+  } else {
+    const logoWidth = Math.round(targetCanvas.width * selectedLogoSize.ratio);
+    const logoHeight = Math.round((state.logo.height / state.logo.width) * logoWidth);
+    drawRegularLogo(context, targetCanvas, logoWidth, logoHeight, padding);
+  }
+}
+
+function getAdvancedLayoutRects(targetCanvas) {
+  const barHeight = state.advancedBarEnabled ? Math.round(targetCanvas.height * state.advancedBarHeight) : 0;
+  const contentHeight = targetCanvas.height - barHeight;
+  const imageWidth = clamp(
+    Math.round(targetCanvas.width * state.advancedImageWidth),
+    Math.round(targetCanvas.width * 0.28),
+    Math.round(targetCanvas.width * 0.72),
+  );
+  const textWidth = targetCanvas.width - imageWidth;
+  const imageOnRight = state.advancedImageSide === 'right';
+
+  return {
+    barHeight,
+    imageRect: {
+      x: imageOnRight ? textWidth : 0,
+      y: 0,
+      width: imageWidth,
+      height: contentHeight,
+    },
+    textRect: {
+      x: imageOnRight ? 0 : imageWidth,
+      y: 0,
+      width: textWidth,
+      height: contentHeight,
+    },
+  };
+}
+
+function drawAdvancedLogoBar(context, targetCanvas, selectedLogoSize, barHeight) {
+  if (barHeight <= 0) return;
+
+  const barY = targetCanvas.height - barHeight;
+  context.fillStyle = state.advancedBarColor;
+  context.fillRect(0, barY, targetCanvas.width, barHeight);
+
+  const maxLogoWidth = Math.min(
+    targetCanvas.width * 0.34,
+    barHeight * 4.2,
+    targetCanvas.width * (selectedLogoSize.ratio + 0.12),
+  );
+  const maxLogoHeight = barHeight * 0.72;
+  const logoRatio = state.logo.width / state.logo.height;
+  let logoWidth = maxLogoWidth;
+  let logoHeight = logoWidth / logoRatio;
+  if (logoHeight > maxLogoHeight) {
+    logoHeight = maxLogoHeight;
+    logoWidth = logoHeight * logoRatio;
+  }
+
+  const x = Math.round((targetCanvas.width - logoWidth) / 2);
+  const y = Math.round(barY + (barHeight - logoHeight) / 2);
+  context.save();
+  context.globalAlpha = state.opacity;
+  context.drawImage(state.logo, x, y, logoWidth, logoHeight);
+  context.restore();
+}
+
+function drawRegularLogo(context, targetCanvas, logoWidth, logoHeight, padding) {
+  const { x, y } = getLogoCoordinates(state.position, targetCanvas, logoWidth, logoHeight, padding);
 
   context.save();
   context.globalAlpha = state.opacity;
   context.drawImage(state.logo, x, y, logoWidth, logoHeight);
   context.restore();
-  updateOutputSummary();
+}
+
+function getCanvasRect(targetCanvas) {
+  return { x: 0, y: 0, width: targetCanvas.width, height: targetCanvas.height };
+}
+
+function drawImageInRect(context, image, rect, mode) {
+  context.save();
+  context.beginPath();
+  context.rect(rect.x, rect.y, rect.width, rect.height);
+  context.clip();
+
+  if (mode === 'stretch') {
+    drawImageStretchRect(context, image, rect);
+  } else if (mode === 'contain') {
+    drawImageContainRect(context, image, rect);
+  } else if (mode === 'manual') {
+    drawImageManualCropRect(context, image, rect);
+  } else {
+    drawImageCoverRect(context, image, rect);
+  }
+
+  context.restore();
+}
+
+function drawAdvancedImageInRect(context, image, rect) {
+  context.save();
+  context.beginPath();
+  context.rect(rect.x, rect.y, rect.width, rect.height);
+  context.clip();
+
+  if (state.imageFit === 'stretch') {
+    drawImageStretchRect(context, image, rect);
+  } else if (state.imageFit === 'contain') {
+    drawImageContainRect(context, image, rect);
+  } else {
+    const zoom = state.imageFit === 'manual' ? state.manualZoom : 1;
+    const pan = getAdvancedPhotoPanValues();
+    drawImagePannedCoverRect(context, image, rect, pan.x, pan.y, zoom);
+  }
+
+  context.restore();
+}
+
+function getAdvancedPhotoPanValues() {
+  if (state.imageFit !== 'manual') {
+    return { x: state.advancedPhotoX, y: state.advancedPhotoY };
+  }
+
+  return {
+    x: Math.round(clamp(state.advancedPhotoX + state.manualCropX, -100, 100)),
+    y: Math.round(clamp(state.advancedPhotoY + state.manualCropY, -100, 100)),
+  };
+}
+
+function drawImageStretchRect(context, image, rect) {
+  context.drawImage(image, rect.x, rect.y, rect.width, rect.height);
+}
+
+function drawImageContainRect(context, image, rect) {
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const scale = Math.min(rect.width / imageWidth, rect.height / imageHeight);
+  const drawWidth = Math.round(imageWidth * scale);
+  const drawHeight = Math.round(imageHeight * scale);
+  const x = Math.round(rect.x + (rect.width - drawWidth) / 2);
+  const y = Math.round(rect.y + (rect.height - drawHeight) / 2);
+
+  context.fillStyle = '#ffffff';
+  context.fillRect(rect.x, rect.y, rect.width, rect.height);
+  context.drawImage(image, x, y, drawWidth, drawHeight);
+}
+
+function drawImageCoverRect(context, image, rect) {
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const imageRatio = imageWidth / imageHeight;
+  const targetRatio = rect.width / rect.height;
+  let sourceWidth = imageWidth;
+  let sourceHeight = imageHeight;
+  let sourceX = 0;
+  let sourceY = 0;
+
+  if (imageRatio > targetRatio) {
+    sourceWidth = Math.round(imageHeight * targetRatio);
+    sourceX = Math.round((imageWidth - sourceWidth) / 2);
+  } else {
+    sourceHeight = Math.round(imageWidth / targetRatio);
+    sourceY = Math.round((imageHeight - sourceHeight) / 2);
+  }
+
+  context.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    rect.x,
+    rect.y,
+    rect.width,
+    rect.height,
+  );
+}
+
+function drawImageManualCropRect(context, image, rect) {
+  drawImagePannedCoverRect(context, image, rect, state.manualCropX, state.manualCropY, state.manualZoom);
+}
+
+function drawImagePannedCoverRect(context, image, rect, panX, panY, zoom = 1) {
+  const metrics = getPannedCoverMetrics(image, rect, zoom);
+  const x = rect.x + ((rect.width - metrics.drawWidth) / 2) + ((panX / 100) * metrics.maxPanX);
+  const y = rect.y + ((rect.height - metrics.drawHeight) / 2) + ((panY / 100) * metrics.maxPanY);
+
+  context.drawImage(image, x, y, metrics.drawWidth, metrics.drawHeight);
+}
+
+function getPannedCoverMetrics(image, rect, zoom = 1) {
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const baseScale = Math.max(rect.width / imageWidth, rect.height / imageHeight);
+  const scale = baseScale * zoom;
+  const drawWidth = imageWidth * scale;
+  const drawHeight = imageHeight * scale;
+
+  return {
+    drawHeight,
+    drawWidth,
+    maxPanX: Math.max(0, (drawWidth - rect.width) / 2),
+    maxPanY: Math.max(0, (drawHeight - rect.height) / 2),
+  };
 }
 
 function drawImageStretch(context, image, targetWidth, targetHeight) {
@@ -890,6 +1440,141 @@ function drawImageManualCrop(context, image, targetWidth, targetHeight) {
   const y = ((targetHeight - drawHeight) / 2) + ((state.manualCropY / 100) * maxPanY);
 
   context.drawImage(image, x, y, drawWidth, drawHeight);
+}
+
+function drawAdvancedTextOverlay(context, rect, targetCanvas) {
+  const margin = Math.max(22, Math.round(targetCanvas.width * 0.045));
+  const selectedSize = textSizes.find((item) => item.value === state.textSize) ?? textSizes[1];
+  const baseFontSize = Math.max(24, Math.round(targetCanvas.width * selectedSize.ratio * 0.92));
+  const maxTextWidth = Math.max(80, rect.width - margin * 2);
+  const items = getAdvancedTextItems(context, maxTextWidth, baseFontSize);
+  if (!items.length) return;
+
+  const blockHeight = items.reduce((total, item) => total + item.height, 0);
+  const isCentered = state.textAlign === 'center' || state.textPosition.endsWith('center');
+  const isBottom = state.textPosition.startsWith('bottom');
+  const offsetX = (state.textOffsetX / 100) * rect.width * 0.22;
+  const offsetY = (state.textOffsetY / 100) * rect.height * 0.22;
+  const minX = rect.x + margin * 0.55;
+  const maxX = rect.x + rect.width - margin * 0.55;
+  const minY = rect.y + margin * 0.55;
+  const maxY = rect.y + rect.height - margin * 0.55;
+  let currentY = isBottom ? rect.y + rect.height - margin - blockHeight : rect.y + margin;
+  currentY = clamp(Math.round(currentY + offsetY), minY, maxY - blockHeight);
+
+  context.save();
+  context.textBaseline = 'alphabetic';
+
+  for (const item of items) {
+    if (item.type === 'gap') {
+      currentY += item.height;
+      continue;
+    }
+
+    const lineX = getAdvancedLineX(rect, margin, item.width, isCentered, offsetX);
+    if (item.highlight) {
+      const boxX = lineX - item.paddingX;
+      const boxY = currentY;
+      context.fillStyle = state.advancedHighlightColor;
+      context.fillRect(boxX, boxY, item.width + item.paddingX * 2, item.height);
+    }
+
+    context.font = item.font;
+    context.fillStyle = item.color;
+    context.fillText(item.text, lineX, currentY + item.paddingY + item.baseline);
+    currentY += item.height;
+  }
+
+  context.restore();
+}
+
+function getAdvancedLineX(rect, margin, lineWidth, isCentered, offsetX) {
+  const baseX = isCentered
+    ? rect.x + Math.round((rect.width - lineWidth) / 2)
+    : rect.x + margin;
+  const minX = rect.x + margin * 0.55;
+  const maxX = rect.x + rect.width - margin * 0.55 - lineWidth;
+  return clamp(Math.round(baseX + offsetX), minX, maxX);
+}
+
+function getAdvancedTextItems(context, maxTextWidth, baseFontSize) {
+  const textColor = state.textColor;
+  const highlightTextColor = getReadableTextColor(state.advancedHighlightColor);
+  const segments = [
+    {
+      color: textColor,
+      fontSize: Math.round(baseFontSize * 1.02),
+      highlight: false,
+      text: state.textHeadline.trim(),
+      weight: 900,
+    },
+    {
+      color: highlightTextColor,
+      fontSize: Math.round(baseFontSize * 0.96),
+      highlight: true,
+      text: state.textEmphasis.trim(),
+      weight: 900,
+    },
+    {
+      color: textColor,
+      fontSize: Math.round(baseFontSize * 0.88),
+      highlight: false,
+      text: state.textBody.trim(),
+      weight: 850,
+    },
+  ];
+  const items = [];
+
+  for (const segment of segments) {
+    if (!segment.text) continue;
+
+    const font = getCampaignTextFont(segment.fontSize, segment.weight);
+    const paddingX = segment.highlight ? Math.round(segment.fontSize * 0.28) : 0;
+    const paddingY = segment.highlight ? Math.round(segment.fontSize * 0.2) : 0;
+    const lineHeight = Math.round(segment.fontSize * 1.22);
+    const lineBoxHeight = segment.highlight ? lineHeight + paddingY * 2 : lineHeight;
+    context.font = font;
+
+    const wrapWidth = segment.highlight ? Math.max(40, maxTextWidth - paddingX * 2) : maxTextWidth;
+    for (const line of getWrappedTextLines(context, segment.text, wrapWidth)) {
+      items.push({
+        baseline: Math.round(segment.fontSize * 0.84),
+        color: segment.color,
+        font,
+        height: lineBoxHeight,
+        highlight: segment.highlight,
+        paddingX,
+        paddingY,
+        text: line,
+        type: 'line',
+        width: Math.ceil(context.measureText(line).width),
+      });
+    }
+
+    items.push({ height: Math.round(segment.fontSize * 0.28), type: 'gap' });
+  }
+
+  if (items.at(-1)?.type === 'gap') items.pop();
+  return items;
+}
+
+function getReadableTextColor(hexColor) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return '#ffffff';
+
+  const luminance = ((0.299 * rgb.r) + (0.587 * rgb.g) + (0.114 * rgb.b)) / 255;
+  return luminance > 0.62 ? '#17323f' : '#ffffff';
+}
+
+function hexToRgb(hexColor) {
+  const hex = String(hexColor || '').replace('#', '');
+  if (!/^[\da-f]{6}$/i.test(hex)) return null;
+
+  return {
+    r: parseInt(hex.slice(0, 2), 16),
+    g: parseInt(hex.slice(2, 4), 16),
+    b: parseInt(hex.slice(4, 6), 16),
+  };
 }
 
 function drawTextOverlay(context, targetCanvas) {
@@ -1286,16 +1971,20 @@ function getSelectedOutputPreset() {
 function getDownloadFileName() {
   const output = getSelectedOutputPreset();
   const fitSlug = getFitSlug();
-  return `${DOWNLOAD_FILE_PREFIX}-${output.slug}-${fitSlug}-${output.width}x${output.height}.png`;
+  const layoutSlug = state.advancedMode ? `advanced-layout-${fitSlug}` : fitSlug;
+  return `${DOWNLOAD_FILE_PREFIX}-${output.slug}-${layoutSlug}-${output.width}x${output.height}.png`;
 }
 
 function updateOutputSummary() {
   const output = getSelectedOutputPreset();
   const fitLabel = getFitLabel();
-  outputSummary.textContent = `${output.label} export: ${output.width} x ${output.height} px, ${fitLabel}.`;
+  const layoutLabel = state.advancedMode
+    ? `advanced campaign layout, ${fitLabel}`
+    : fitLabel;
+  outputSummary.textContent = `${output.label} export: ${output.width} x ${output.height} px, ${layoutLabel}.`;
   if (state.image) {
     qualityNote.textContent = `${output.label}: ${output.width} x ${output.height} px`;
-    fileSummary.textContent = `Image loaded. ${output.label} export: ${output.width} x ${output.height} px, ${fitLabel}.`;
+    fileSummary.textContent = `Image loaded. ${output.label} export: ${output.width} x ${output.height} px, ${layoutLabel}.`;
   }
 }
 
@@ -1308,7 +1997,7 @@ function getFitSlug() {
 
 function getFitLabel() {
   if (state.imageFit === 'stretch') return 'squeeze to fit';
-  if (state.imageFit === 'manual') return 'manual crop';
+  if (state.imageFit === 'manual') return 'manual crop; drag preview to position';
   if (state.imageFit === 'contain') return 'fit whole image with padding';
   return 'centre crop';
 }
@@ -1329,8 +2018,11 @@ function updateTextSummary() {
   const size = textSizes.find((item) => item.value === state.textSize)?.label ?? 'Medium';
   const backing = textBackingStyles.find((item) => item.value === state.textBackingStyle)?.label ?? 'CAWF blue';
   const width = textWidths.find((item) => item.value === state.textWidth)?.label ?? 'Medium';
-  const emphasis = state.textEmphasis.trim() ? ', red emphasis' : '';
-  textSummary.textContent = `${size} ${color.toLowerCase()} campaign text${emphasis}, ${backing.toLowerCase()} backing, ${width.toLowerCase()} width.`;
+  const emphasis = state.textEmphasis.trim()
+    ? (state.advancedMode ? ', highlight box' : ', red emphasis')
+    : '';
+  const backingText = state.advancedMode ? 'advanced text panel' : `${backing.toLowerCase()} backing`;
+  textSummary.textContent = `${size} ${color.toLowerCase()} campaign text${emphasis}, ${backingText}, ${width.toLowerCase()} width.`;
 }
 
 async function showSavedFile() {
