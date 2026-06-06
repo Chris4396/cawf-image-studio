@@ -1,0 +1,9 @@
+{
+  "name": "CAWF SharePoint Image Grab",
+  "short_name": "Image Grab",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f6fbfc",
+  "theme_color": "#f6fbfc"
+}

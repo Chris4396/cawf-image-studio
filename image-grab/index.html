@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6fbfc" />
+    <title>CAWF SharePoint Image Grab</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">CAWF staff tool</p>
+          <h1>SharePoint Image Grab</h1>
+        </div>
+        <div class="status-pill" data-runtime>iPhone only</div>
+      </header>
+
+      <section class="iphone-note" data-non-ios hidden>
+        <strong>Open this on your iPhone.</strong>
+        <span>This helper is built for iPhone Safari because it uses the iOS Photos save/share sheet.</span>
+      </section>
+
+      <section class="sharepoint-band" aria-label="CAWF SharePoint folder">
+        <div>
+          <p class="eyebrow">1. Find the image</p>
+          <h2>CAWF Shutterstock assets</h2>
+          <p class="helper-copy">In SharePoint's image viewer, tap share, then use Send a copy. Do not use the blue Send button, which sends a link/message.</p>
+        </div>
+        <div class="sharepoint-actions">
+          <a
+            class="primary-link"
+            data-sharepoint-open
+            href="https://conservativeanimalwelfare.sharepoint.com/:f:/s/CAWF/IgDpzI4bmRmzSpJGKbwDoYYwAREWaolrghMrdJomCklW5rA?e=QrdBxV"
+            rel="noopener"
+            target="_blank"
+          >Open SharePoint</a>
+          <a
+            class="secondary-link"
+            data-sharepoint-open
+            href="https://conservativeanimalwelfare.sharepoint.com/sites/CAWF/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FCAWF%2FShared%20Documents%2FCawf%20digital%20assets%2FShutterstock&viewid=563b8413%2Dff6a%2D4cd8%2D9a0e%2D1481870626db"
+            rel="noopener"
+            target="_blank"
+          >Backup link</a>
+        </div>
+      </section>
+
+      <section class="picker-band" aria-label="Select SharePoint images">
+        <label class="file-picker">
+          <span class="picker-mark" aria-hidden="true">+</span>
+          <span>
+            <strong>2. Import image from Files</strong>
+            <small>Only use this if you saved/downloaded the SharePoint image into Files or Downloads</small>
+          </span>
+          <input data-file-input type="file" accept="image/*,.jpg,.jpeg,.png,.heic,.heif,.webp" multiple />
+        </label>
+        <div class="action-row">
+          <button class="primary-action" data-share-all type="button" disabled>3. Save to Photos...</button>
+          <button class="secondary-action" data-clear type="button" disabled>Clear</button>
+        </div>
+        <p class="status-text" data-status>If SharePoint's share button does not offer Save Image, save to Files, then import the file here.</p>
+      </section>
+
+      <section class="trouble-band" aria-label="Save Photo troubleshooting">
+        <p class="eyebrow">If Save Photo looks broken</p>
+        <h2>Check Photos by the image date</h2>
+        <p>SharePoint images can keep their original date, so Photos may place them back on that day instead of today. If you still cannot find it, use Save to Files, then import it here.</p>
+      </section>
+
+      <section class="tips-band" aria-label="Save guidance">
+        <div class="tip-item">
+          <span aria-hidden="true">1</span>
+          <p>Use <strong>Open SharePoint</strong> to open the image viewer.</p>
+        </div>
+        <div class="tip-item">
+          <span aria-hidden="true">2</span>
+          <p>Tap SharePoint's <strong>share icon</strong>, then choose Save Image or Save to Photos if offered.</p>
+        </div>
+        <div class="tip-item">
+          <span aria-hidden="true">3</span>
+          <p>If it does not appear in Photos, check the image date first. Then try Save to Files and import here.</p>
+        </div>
+      </section>
+
+      <section class="gallery-section" aria-label="Selected image previews">
+        <div class="gallery-header">
+          <div>
+            <p class="eyebrow">Selected</p>
+            <h2 data-count-heading>No images yet</h2>
+          </div>
+        </div>
+        <div class="empty-state" data-empty>
+          <div class="empty-frame" aria-hidden="true"></div>
+          <p>Selected images will appear here with one-tap save buttons.</p>
+        </div>
+        <div class="gallery-grid" data-gallery></div>
+      </section>
+    </main>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
