@@ -62,6 +62,12 @@ const textWidths = [
   { value: 'wide', label: 'Wide', ratio: 0.72 },
 ];
 
+const advancedTextWidthRatios = {
+  compact: 0.58,
+  medium: 0.76,
+  wide: 0.94,
+};
+
 const textAlignments = [
   { value: 'left', label: 'Left' },
   { value: 'center', label: 'Centre' },
@@ -326,7 +332,7 @@ document.getElementById('root').innerHTML = `
           </fieldset>
 
           <fieldset class="control-group">
-            <legend>Width</legend>
+            <legend>Text line width</legend>
             <div class="segmented-row" data-control="textWidth"></div>
           </fieldset>
 
@@ -1446,7 +1452,7 @@ function drawAdvancedTextOverlay(context, rect, targetCanvas) {
   const margin = Math.max(22, Math.round(targetCanvas.width * 0.045));
   const selectedSize = textSizes.find((item) => item.value === state.textSize) ?? textSizes[1];
   const baseFontSize = Math.max(24, Math.round(targetCanvas.width * selectedSize.ratio * 0.92));
-  const maxTextWidth = Math.max(80, rect.width - margin * 2);
+  const maxTextWidth = getAdvancedTextMaxWidth(rect, margin);
   const items = getAdvancedTextItems(context, maxTextWidth, baseFontSize);
   if (!items.length) return;
 
@@ -1495,6 +1501,12 @@ function getAdvancedLineX(rect, margin, lineWidth, isCentered, offsetX) {
   const minX = rect.x + margin * 0.55;
   const maxX = rect.x + rect.width - margin * 0.55 - lineWidth;
   return clamp(Math.round(baseX + offsetX), minX, maxX);
+}
+
+function getAdvancedTextMaxWidth(rect, margin) {
+  const availableWidth = Math.max(80, rect.width - margin * 2);
+  const widthRatio = advancedTextWidthRatios[state.textWidth] ?? advancedTextWidthRatios.medium;
+  return Math.max(80, Math.round(availableWidth * widthRatio));
 }
 
 function getAdvancedTextItems(context, maxTextWidth, baseFontSize) {
@@ -2022,7 +2034,7 @@ function updateTextSummary() {
     ? (state.advancedMode ? ', highlight box' : ', red emphasis')
     : '';
   const backingText = state.advancedMode ? 'advanced text panel' : `${backing.toLowerCase()} backing`;
-  textSummary.textContent = `${size} ${color.toLowerCase()} campaign text${emphasis}, ${backingText}, ${width.toLowerCase()} width.`;
+  textSummary.textContent = `${size} ${color.toLowerCase()} campaign text${emphasis}, ${backingText}, ${width.toLowerCase()} line width.`;
 }
 
 async function showSavedFile() {
