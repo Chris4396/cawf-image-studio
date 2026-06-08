@@ -1,20 +1,20 @@
 {
   "name": "CAWF Image Grab",
-  "short_name": "CAWF Image Grab",
-  "start_url": ".",
-  "scope": ".",
+  "short_name": "Image Grab",
+  "start_url": "./?v=2",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f6fbfc",
   "theme_color": "#f6fbfc",
   "icons": [
     {
-      "src": "icons/app-icon-192.png",
+      "src": "icons/app-icon-192-v2.png?v=2",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/app-icon-512.png",
+      "src": "icons/app-icon-512-v2.png?v=2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
