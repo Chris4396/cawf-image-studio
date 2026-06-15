@@ -129,6 +129,7 @@ const state = {
   logo: null,
   logoReady: false,
   logoIsFallback: false,
+  showLogo: true,
   lastSavedPath: '',
   manualCropX: 0,
   manualCropY: 0,
@@ -254,7 +255,7 @@ document.getElementById('root').innerHTML = `
               <legend>Emphasis highlight colour</legend>
               <div class="color-grid advanced-color-grid" data-control="advancedHighlightColor"></div>
             </fieldset>
-            <label class="fit-toggle">
+            <label class="fit-toggle advanced-bar-toggle-row">
               <input class="advanced-bar-toggle" type="checkbox" checked />
               <span>
                 <strong>Bottom logo bar</strong>
@@ -279,21 +280,30 @@ document.getElementById('root').innerHTML = `
             <h2>Logo</h2>
           </div>
           <p class="logo-status">Loading CAWF logo...</p>
+          <label class="fit-toggle logo-toggle-row">
+            <input class="logo-toggle" type="checkbox" checked />
+            <span>
+              <strong>Add CAWF logo</strong>
+              <small>Turn off when the source image already includes branding</small>
+            </span>
+          </label>
 
-          <fieldset class="control-group">
-            <legend>Position</legend>
-            <div class="segmented-grid" data-control="position"></div>
-          </fieldset>
+          <div class="logo-options">
+            <fieldset class="control-group">
+              <legend>Position</legend>
+              <div class="segmented-grid" data-control="position"></div>
+            </fieldset>
 
-          <fieldset class="control-group">
-            <legend>Size</legend>
-            <div class="segmented-row" data-control="size"></div>
-          </fieldset>
+            <fieldset class="control-group">
+              <legend>Size</legend>
+              <div class="segmented-row" data-control="size"></div>
+            </fieldset>
 
-          <fieldset class="control-group">
-            <legend>Opacity</legend>
-            <div class="segmented-row" data-control="opacity"></div>
-          </fieldset>
+            <fieldset class="control-group">
+              <legend>Opacity</legend>
+              <div class="segmented-row" data-control="opacity"></div>
+            </fieldset>
+          </div>
         </section>
 
         <section class="control-section">
@@ -444,6 +454,7 @@ const advancedPhotoYInput = document.querySelector('.advanced-photo-y');
 const advancedPhotoYValue = document.querySelector('.advanced-photo-y-value');
 const advancedPhotoResetButton = document.querySelector('.advanced-photo-reset');
 const advancedBarToggle = document.querySelector('.advanced-bar-toggle');
+const advancedBarToggleRow = document.querySelector('.advanced-bar-toggle-row');
 const advancedBarHeightInput = document.querySelector('.advanced-bar-height');
 const advancedBarHeightValue = document.querySelector('.advanced-bar-height-value');
 const advancedBarOptions = document.querySelectorAll('.advanced-bar-options');
@@ -463,6 +474,8 @@ const textYInput = document.querySelector('.text-y');
 const textXValue = document.querySelector('.text-x-value');
 const textYValue = document.querySelector('.text-y-value');
 const textPositionResetButton = document.querySelector('.text-position-reset');
+const logoToggle = document.querySelector('.logo-toggle');
+const logoOptions = document.querySelector('.logo-options');
 const uploadInput = document.querySelector('input[type="file"]');
 const resetButton = document.querySelector('.actions-section .secondary-action');
 const downloadButton = document.querySelector('.actions-section .primary-action');
@@ -517,6 +530,7 @@ renderOptionButtons('advancedImageSide', advancedImageSides, state.advancedImage
 renderOptionButtons('advancedPanelColor', advancedPanelColors, state.advancedPanelColor);
 renderOptionButtons('advancedBarColor', advancedBarColors, state.advancedBarColor);
 renderOptionButtons('advancedHighlightColor', advancedHighlightColors, state.advancedHighlightColor);
+updateLogoControls();
 updateAdvancedControls();
 updateManualCropControls();
 updateTextPositionControls();
@@ -532,6 +546,7 @@ downloadButton.addEventListener('click', downloadImage);
 openDownloadsButton.addEventListener('click', showSavedFile);
 advancedModeToggle.addEventListener('change', handleAdvancedModeToggle);
 advancedBarToggle.addEventListener('change', handleAdvancedBarToggle);
+logoToggle.addEventListener('change', handleLogoToggle);
 advancedPanelOpacityInput.addEventListener('input', handleAdvancedRangeChange);
 advancedImageWidthInput.addEventListener('input', handleAdvancedRangeChange);
 advancedBarHeightInput.addEventListener('input', handleAdvancedRangeChange);
@@ -571,6 +586,9 @@ document.addEventListener('drop', preventFileDropNavigation);
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !mobileSavePanel.hidden) hideMobileSavePreview();
 });
+if (document.fonts?.ready) {
+  document.fonts.ready.then(() => drawCanvas()).catch(() => {});
+}
 
 function renderOptionButtons(controlName, options, selectedValue) {
   const container = document.querySelector(`[data-control="${controlName}"]`);
@@ -632,6 +650,14 @@ function handleAdvancedBarToggle() {
   drawCanvas();
 }
 
+function handleLogoToggle() {
+  state.showLogo = logoToggle.checked;
+  updateLogoControls();
+  updateAdvancedControls();
+  updateOutputSummary();
+  drawCanvas();
+}
+
 function handleAdvancedRangeChange() {
   state.advancedPanelOpacity = Number(advancedPanelOpacityInput.value) / 100;
   state.advancedImageWidth = Number(advancedImageWidthInput.value) / 100;
@@ -668,10 +694,22 @@ function updateAdvancedControls() {
   advancedPhotoXValue.textContent = `${state.advancedPhotoX}%`;
   advancedPhotoYValue.textContent = `${state.advancedPhotoY}%`;
   advancedBarHeightValue.textContent = `${Math.round(state.advancedBarHeight * 100)}%`;
+  advancedBarToggleRow.hidden = !state.showLogo;
   advancedBarOptions.forEach((item) => {
-    item.hidden = !state.advancedBarEnabled;
+    item.hidden = !state.showLogo || !state.advancedBarEnabled;
   });
   updatePhotoDragCursor();
+}
+
+function updateLogoControls() {
+  logoToggle.checked = state.showLogo;
+  logoOptions.hidden = !state.showLogo;
+  if (!state.logoReady) return;
+  if (!state.showLogo) {
+    logoStatus.textContent = 'Logo will not be added to exported images.';
+  } else {
+    logoStatus.textContent = state.logoIsFallback ? 'Placeholder logo active' : 'Official CAWF logo loaded';
+  }
 }
 
 function handleManualCropChange() {
@@ -877,14 +915,14 @@ function loadLogo() {
     state.logo = logo;
     state.logoReady = true;
     state.logoIsFallback = false;
-    logoStatus.textContent = 'Official CAWF logo loaded';
+    updateLogoControls();
     drawCanvas();
   };
   logo.onerror = () => {
     state.logo = createPlaceholderLogo();
     state.logoReady = true;
     state.logoIsFallback = true;
-    logoStatus.textContent = 'Placeholder logo active';
+    updateLogoControls();
     setStatus('Using a placeholder logo. Add the official CAWF logo at public/assets/cawf-logo.png when ready.');
     drawCanvas();
   };
@@ -1008,6 +1046,7 @@ function resetImage() {
   state.pendingExportBlob = null;
   state.pendingExportSize = '';
   state.position = 'bottom-right';
+  state.showLogo = true;
   state.size = 'medium';
   state.textAlign = 'left';
   state.textBackingStyle = 'blue';
@@ -1049,6 +1088,7 @@ function resetImage() {
   renderOptionButtons('advancedPanelColor', advancedPanelColors, state.advancedPanelColor);
   renderOptionButtons('advancedBarColor', advancedBarColors, state.advancedBarColor);
   renderOptionButtons('advancedHighlightColor', advancedHighlightColors, state.advancedHighlightColor);
+  updateLogoControls();
   updateAdvancedControls();
   updateManualCropControls();
   updateTextPositionControls();
@@ -1158,7 +1198,7 @@ function drawCanvas() {
   } else {
     drawImageInRect(context, state.image, getCanvasRect(canvas), state.imageFit);
     drawTextOverlay(context, canvas);
-    drawRegularLogo(context, canvas, logoWidth, logoHeight, padding);
+    if (state.showLogo) drawRegularLogo(context, canvas, logoWidth, logoHeight, padding);
   }
 
   updateOutputSummary();
@@ -1179,9 +1219,9 @@ function drawAdvancedLayout(context, targetCanvas, selectedLogoSize, padding) {
 
   drawAdvancedTextOverlay(context, textRect, targetCanvas);
 
-  if (state.advancedBarEnabled) {
+  if (state.showLogo && state.advancedBarEnabled) {
     drawAdvancedLogoBar(context, targetCanvas, selectedLogoSize, barHeight);
-  } else {
+  } else if (state.showLogo) {
     const logoWidth = Math.round(targetCanvas.width * selectedLogoSize.ratio);
     const logoHeight = Math.round((state.logo.height / state.logo.width) * logoWidth);
     drawRegularLogo(context, targetCanvas, logoWidth, logoHeight, padding);
@@ -1189,7 +1229,7 @@ function drawAdvancedLayout(context, targetCanvas, selectedLogoSize, padding) {
 }
 
 function getAdvancedLayoutRects(targetCanvas) {
-  const barHeight = state.advancedBarEnabled ? Math.round(targetCanvas.height * state.advancedBarHeight) : 0;
+  const barHeight = state.showLogo && state.advancedBarEnabled ? Math.round(targetCanvas.height * state.advancedBarHeight) : 0;
   const contentHeight = targetCanvas.height - barHeight;
   const imageWidth = clamp(
     Math.round(targetCanvas.width * state.advancedImageWidth),
@@ -1717,7 +1757,7 @@ function getCampaignTextSegments(targetCanvas) {
 }
 
 function getCampaignTextFont(fontSize, weight) {
-  return `${weight} ${fontSize}px "Arial Narrow", "Roboto Condensed", Arial, sans-serif`;
+  return `${weight} ${fontSize}px Oswald, "Arial Narrow", "Roboto Condensed", Arial, sans-serif`;
 }
 
 function getTextBackingFill() {

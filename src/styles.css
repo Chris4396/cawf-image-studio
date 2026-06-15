@@ -318,6 +318,11 @@ button:focus-visible,
   font-weight: 900;
 }
 
+.logo-options {
+  display: grid;
+  gap: 16px;
+}
+
 .segmented-row,
 .segmented-grid,
 .platform-grid,
